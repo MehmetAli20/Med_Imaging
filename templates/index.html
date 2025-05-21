@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tıbbi Görüntü Analizi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+            padding: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .upload-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        .upload-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .result-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+            transition: all 0.3s ease;
+        }
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .upload-area:hover {
+            border-color: #0d6efd;
+            background-color: #e9ecef;
+        }
+        .upload-area.dragover {
+            border-color: #0d6efd;
+            background-color: #e9ecef;
+            transform: scale(1.02);
+        }
+        .upload-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover .upload-icon {
+            transform: scale(1.1);
+            color: #0d6efd;
+        }
+        .btn-analyze {
+            background-color: #0d6efd;
+            color: white;
+            padding: 0.8rem 2.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-analyze:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-analyze:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .analysis-plot {
+            max-width: 100%;
+            height: auto;
+            margin: 1rem 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .report-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            white-space: pre-line;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 1rem;
+            display: none;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c2c7;
+        }
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            display: none;
+        }
+        .file-info i {
+            margin-right: 0.5rem;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-lungs"></i> Tıbbi Görüntü Analizi</h1>
+            <p class="lead">Derin öğrenme tabanlı otomatik tıbbi görüntü analiz sistemi</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="dropZone">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h3>Görüntü Yükle</h3>
+                <p>Dosyayı sürükleyip bırakın veya seçmek için tıklayın</p>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+            <div class="file-info" id="fileInfo">
+                <i class="fas fa-file-image"></i>
+                <span id="fileName"></span>
+                <span id="fileSize"></span>
+            </div>
+            <div class="text-center mt-3">
+                <button class="btn-analyze" id="analyzeBtn" disabled>
+                    <i class="fas fa-microscope"></i> Analiz Et
+                </button>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Yükleniyor...</span>
+            </div>
+            <p class="mt-2">Görüntü analiz ediliyor...</p>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <h2><i class="fas fa-chart-line"></i> Analiz Sonuçları</h2>
+            <div class="row">
+                <div class="col-md-8">
+                    <img id="analysisPlot" class="analysis-plot" src="" alt="Analiz Görseli">
+                </div>
+                <div class="col-md-4">
+                    <div class="report-section" id="reportSection"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const resultSection = document.getElementById('resultSection');
+        const analysisPlot = document.getElementById('analysisPlot');
+        const reportSection = document.getElementById('reportSection');
+        const errorMessage = document.getElementById('errorMessage');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+
+        // Dosya sürükle-bırak işlemleri
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        dropZone.addEventListener('click', (e) => {
+            if (e.target !== dropZone) return;
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showError('Lütfen geçerli bir görüntü dosyası seçin.');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showError('Dosya boyutu çok büyük. Maksimum 10MB olmalıdır.');
+                return;
+            }
+
+            // Dosya bilgilerini göster
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+
+            analyzeBtn.disabled = false;
+            errorMessage.style.display = 'none';
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+            errorMessage.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                analysisPlot.src = data.plot_url + '?t=' + new Date().getTime();
+                reportSection.textContent = data.report;
+                resultSection.style.display = 'block';
+            } catch (error) {
+                showError('Analiz sırasında bir hata oluştu: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            loading.style.display = 'none';
+            resultSection.style.display = 'none';
+            analyzeBtn.disabled = false;
+        }
+    </script>
+</body>
+</html> 

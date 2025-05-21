@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analiz Sonuçları</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .visualization {
+            text-align: center;
+        }
+        .visualization img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .report {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        .metrics {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .metric {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            min-width: 150px;
+        }
+        .metric h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        .metric p {
+            margin: 5px 0 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .diagnosis {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+        }
+        .diagnosis.normal {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .diagnosis.abnormal {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Analiz Sonuçları</h1>
+        </div>
+        
+        <div class="content">
+            <div class="metrics">
+                <div class="metric">
+                    <h3>Güven Skoru</h3>
+                    <p>{{ confidence }}</p>
+                </div>
+            </div>
+            
+            <div class="diagnosis {{ 'normal' if is_normal else 'abnormal' }}">
+                <h2>{{ 'Normal Görüntü' if is_normal else 'Anormal Görüntü' }}</h2>
+            </div>
+            
+            <div class="visualization">
+                <img src="{{ url_for('static', filename=plot_path) }}" alt="Analiz Görselleştirmesi">
+            </div>
+            
+            <div class="report">
+                {{ report }}
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="/" class="back-button">Ana Sayfaya Dön</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
