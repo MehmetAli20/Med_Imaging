@@ -48,7 +48,3 @@ python main.py
 - Giriş boyutu: 224x224x3
 - Sınıflandırma: Binary (Normal/Anormal)
 - Veri artırma: Döndürme, kaydırma, kesme, yakınlaştırma
-
-## Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
